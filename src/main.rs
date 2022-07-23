@@ -33,26 +33,34 @@ fn main() {
 
     match matches.subcommand() {
         Some(("clone", _)) => {
-            let maybe_file = File::open("sbgit.yaml");
-            if maybe_file.is_err() {
-                error!("cannot find file");
-                exit(1);
-            }
-
-            let mut file = maybe_file.unwrap();
-
-            let mut str: String = "".to_string();
-            file.read_to_string(&mut str).expect("cannot read file");
-            let sgit = Sgit::from_str(str.as_str());
+            let sgit = load_sgit();
             for repo in &sgit.repos {
                 GitWrapper::new(repo).try_clone();
             };
         }
         Some(("pull", _)) => {
-            info!("todo: ...");
+            let sgit = load_sgit();
+            for repo in &sgit.repos {
+                GitWrapper::new(repo).try_pull();
+            };
         }
         _ => {
             error!("unsupported command")
         }
     }
+}
+
+fn load_sgit() -> Sgit {
+    let maybe_file = File::open("sbgit.yaml");
+    if maybe_file.is_err() {
+        error!("cannot find file");
+        exit(1);
+    }
+
+    let mut file = maybe_file.unwrap();
+
+    let mut str: String = "".to_string();
+    file.read_to_string(&mut str).expect("cannot read file");
+    let sgit = Sgit::from_str(str.as_str());
+    sgit
 }
