@@ -2,9 +2,14 @@
 extern crate log;
 extern crate pretty_env_logger;
 
+use std::fs::File;
+use std::io::Read;
 use std::path::PathBuf;
+use std::process::exit;
 
 use clap::{arg, Command};
+use crate::git_wrapper::GitWrapper;
+use crate::sgit::Sgit;
 
 mod sgit;
 mod git_wrapper;
@@ -16,25 +21,10 @@ fn cli() -> Command<'static> {
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
-        .subcommand(
-            Command::new("clone")
-                .about("Clones repos")
-                .arg(arg!(<REMOTE> "The remote to clone"))
-                .arg_required_else_help(true),
-        )
-        .subcommand(
-            Command::new("push")
-                .about("pushes things")
-                .arg(arg!(<REMOTE> "The remote to target"))
-                .arg_required_else_help(true),
-        )
-        .subcommand(
-            // todo: add a repos
-            Command::new("add")
-                .about("add a repos")
-                .arg_required_else_help(true)
-                .arg(arg!(<PATH> ... "Stuff to add").value_parser(clap::value_parser!(PathBuf))),
-        )
+        .subcommand(Command::new("clone").about("Clones repos"))
+        .subcommand(Command::new("push").about("pushes things"))
+        // todo: add a repos
+        .subcommand(Command::new("add").about("add a repos"))
 }
 
 fn main() {
@@ -44,10 +34,21 @@ fn main() {
 
     match matches.subcommand() {
         Some(("clone", sub_matches)) => {
-            println!(
-                "Cloning {}",
-                sub_matches.get_one::<String>("REMOTE").expect("required")
-            );
+            let maybe_file = File::open("sbgit.yaml");
+            if maybe_file.is_err() {
+                error!("cannot find file");
+                exit(1);
+            }
+
+            let mut file = maybe_file.unwrap();
+
+            let mut str: String = "".to_string();
+            file.read_to_string(&mut str).expect("cannot read file");
+            let sgit = Sgit::from_str(str.as_str());
+            for repo in &sgit.repos {
+                GitWrapper::new(repo).clone();
+            }
+            ;
         }
         Some(("pull", sub_matches)) => {
             println!(

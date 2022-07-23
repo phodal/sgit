@@ -2,8 +2,15 @@ use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct Sgit {
-    repos: Vec<String>
+pub struct Sgit {
+    pub repos: Vec<String>
+}
+
+impl Sgit {
+    pub fn from_str(str: &str) -> Sgit {
+        let maybe_sgit: Sgit = serde_yaml::from_str(str).expect("cannot parse str");
+        maybe_sgit
+    }
 }
 
 #[cfg(test)]
