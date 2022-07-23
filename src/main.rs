@@ -7,6 +7,7 @@ use std::io::Read;
 use std::process::exit;
 
 use clap::Command;
+use pretty_env_logger::init;
 
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
@@ -23,8 +24,7 @@ fn cli() -> Command<'static> {
         .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(Command::new("clone").about("Clones repos"))
         .subcommand(Command::new("push").about("pushes things"))
-        // todo: add a repos
-        .subcommand(Command::new("add").about("add a repos"))
+        .subcommand(Command::new("add").about("add a repos !! not implement"))
 }
 
 fn main() {
@@ -33,7 +33,7 @@ fn main() {
     let matches = cli().get_matches();
 
     match matches.subcommand() {
-        Some(("clone", sub_matches)) => {
+        Some(("clone", _)) => {
             let maybe_file = File::open("sbgit.yaml");
             if maybe_file.is_err() {
                 error!("cannot find file");
@@ -49,11 +49,8 @@ fn main() {
                 GitWrapper::new(repo).try_clone();
             };
         }
-        Some(("pull", sub_matches)) => {
-            println!(
-                "Pushing to {}",
-                sub_matches.get_one::<String>("REMOTE").expect("required")
-            );
+        Some(("pull", _)) => {
+            info!("todo: ...");
         }
         _ => {
             error!("unsupported command")
