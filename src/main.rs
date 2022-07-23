@@ -4,10 +4,10 @@ extern crate pretty_env_logger;
 
 use std::fs::File;
 use std::io::Read;
-use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{arg, Command};
+use clap::Command;
+
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
 

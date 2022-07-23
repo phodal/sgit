@@ -1,11 +1,11 @@
 use std::path::PathBuf;
-use std::process::{Command, exit};
-use log::Level::Error;
-use url::{Url};
+use std::process::Command;
+
+use url::Url;
 
 #[derive(Debug)]
 pub struct GitWrapper<'a> {
-    repo: &'a str
+    repo: &'a str,
 }
 
 impl<'a> GitWrapper<'a> {
@@ -26,7 +26,7 @@ impl<'a> GitWrapper<'a> {
     pub fn get_repo_name(&self) -> Option<String> {
         let url = Url::parse(self.repo);
         if url.is_err() {
-            return None
+            return None;
         }
 
         let url = url.unwrap();
@@ -70,12 +70,24 @@ impl<'a> GitWrapper<'a> {
         info!("{}", String::from_utf8_lossy(&*output.stderr));
         info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
     }
+
+    pub fn pull(&self) {
+        let mut cmd = self.git();
+        let workdir = format!("-C {}", self.repo);
+        cmd.arg(workdir);
+
+        let output = cmd.output().expect("pull code");
+
+        info!("{}", String::from_utf8_lossy(&*output.stderr));
+        info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
+    }
 }
 
 
 #[cfg(test)]
 mod tests {
     use std::path::Path;
+
     use crate::git_wrapper::GitWrapper;
 
     #[test]
@@ -83,6 +95,17 @@ mod tests {
         GitWrapper::new("https://github.com/phodal/batch-git").done_clone();
 
         assert!(Path::new("batch-git").exists());
+    }
+
+    #[test]
+    fn pull_code() {
+        let wrapper = GitWrapper::new("https://github.com/phodal/batch-git");
+        wrapper.done_clone();
+
+        // todo: wrapper logger for test
+        wrapper.pull();
+
+        assert!(true);
     }
 
     #[test]
