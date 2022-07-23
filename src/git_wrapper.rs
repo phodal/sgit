@@ -41,8 +41,8 @@ impl<'a> GitWrapper<'a> {
 
         let output = cmd.output().expect("git command failed to start");
 
-        println!("{}", String::from_utf8_lossy(&*output.stderr));
-        println!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
+        info!("{}", String::from_utf8_lossy(&*output.stderr));
+        info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
     }
 }
 

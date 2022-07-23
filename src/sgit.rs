@@ -6,7 +6,6 @@ struct Sgit {
     repos: Vec<String>
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::sgit::Sgit;
