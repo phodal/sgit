@@ -76,8 +76,6 @@ impl<'a> GitWrapper<'a> {
         cmd.arg("-C").arg(self.get_repo_name().unwrap());
         cmd.arg("pull");
 
-        info!("{:?}", cmd);
-
         let output = cmd.output().expect("pull code");
 
         info!("{}", String::from_utf8_lossy(&*output.stderr));

@@ -5,6 +5,7 @@ extern crate pretty_env_logger;
 use std::fs::File;
 use std::io::Read;
 use std::process::exit;
+use std::thread;
 
 use clap::Command;
 
@@ -34,15 +35,32 @@ fn main() {
     match matches.subcommand() {
         Some(("clone", _)) => {
             let sgit = load_sgit();
-            for repo in &sgit.repos {
-                GitWrapper::new(repo).try_clone();
-            };
+
+            let threads: Vec<_> = sgit.repos.into_iter()
+                .map(|repo| {
+                    thread::spawn(move || {
+                        GitWrapper::new(&repo).try_clone();
+                    })
+                })
+                .collect();
+
+            for handle in threads {
+                handle.join().unwrap()
+            }
         }
         Some(("pull", _)) => {
             let sgit = load_sgit();
-            for repo in &sgit.repos {
-                GitWrapper::new(repo).try_pull();
-            };
+            let threads: Vec<_> = sgit.repos.into_iter()
+                .map(|repo| {
+                    thread::spawn(move || {
+                        GitWrapper::new(&repo).try_pull();
+                    })
+                })
+                .collect();
+
+            for handle in threads {
+                handle.join().unwrap()
+            }
         }
         _ => {
             error!("unsupported command")
