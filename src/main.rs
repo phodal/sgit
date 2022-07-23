@@ -3,6 +3,8 @@ use std::path::PathBuf;
 
 use clap::{arg, Command};
 
+mod sgit;
+
 fn cli() -> Command<'static> {
     Command::new("git")
         .about("A fictional versioning CLI")
