@@ -104,32 +104,27 @@ impl<'a> GitWrapper<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
     use std::path::Path;
 
     use crate::git_wrapper::GitWrapper;
 
     #[test]
-    fn successful_clone() {
-        GitWrapper::new("https://github.com/phodal/batch-git").done_clone();
-
-        assert!(Path::new("batch-git").exists());
-    }
-
-    #[test]
     fn pull_code() {
         let wrapper = GitWrapper::new("https://github.com/phodal/batch-git");
-        wrapper.done_clone();
 
-        // todo: wrapper logger for test
+        wrapper.done_clone();
         wrapper.try_pull();
 
-        assert!(true);
+        let path = Path::new("batch-git");
+        assert!(path.exists());
+
+        fs::remove_dir_all(Path::new("batch-git")).unwrap();
     }
 
     #[test]
     fn repo_name_success() {
         let name = GitWrapper::new("https://github.com/phodal/batch-git").get_repo_name();
-
         assert_eq!("batch-git", name.unwrap());
     }
 

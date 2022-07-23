@@ -133,6 +133,6 @@ mod tests {
     #[test]
     fn load_path() {
         let paths = try_load_from_path();
-        assert!(paths.len() > 1);
+        assert!(paths.len() >= 1);
     }
 }
