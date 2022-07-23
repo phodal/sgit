@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use clap::{arg, Command};
 
 mod sgit;
+mod git_wrapper;
 
 fn cli() -> Command<'static> {
     Command::new("git")
