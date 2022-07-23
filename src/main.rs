@@ -10,7 +10,7 @@ use std::thread;
 
 use clap::Command;
 use ini::Ini;
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
@@ -88,22 +88,21 @@ fn main() {
 }
 
 fn try_load_from_path() -> Vec<String> {
-    let mut results: Vec<String> = vec![];
     let walker = WalkDir::new(".").max_depth(1).into_iter();
-    for entry in walker {
-        let entry = entry.unwrap();
-        let git_config_file = entry.path().join(".git").join("config");
-        if git_config_file.exists() {
-            let conf = Ini::load_from_file(git_config_file).unwrap();
+    walker
+        .filter_map(|e| e.ok())
+        .filter(|entry| git_config_path(entry).exists())
+        .map(|entry| {
+            let conf = Ini::load_from_file(git_config_path(&entry)).unwrap();
             let section = conf.section(Some("remote \"origin\"")).unwrap();
             let remote = section.get("url").unwrap();
-            results.push(remote.to_string())
-        } else {
-            error!("cannot parse .git/config file")
-        }
-    }
+            remote.to_string()
+        })
+        .collect()
+}
 
-    results
+fn git_config_path(entry: &DirEntry) -> PathBuf {
+    entry.path().join(".git").join("config")
 }
 
 fn load_sgit() -> Sgit {
