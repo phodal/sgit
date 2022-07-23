@@ -9,6 +9,8 @@ use std::process::exit;
 use std::thread;
 
 use clap::Command;
+use ini::Ini;
+use walkdir::WalkDir;
 
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
@@ -38,11 +40,14 @@ fn main() {
 
     match matches.subcommand() {
         Some(("init", _)) => {
-            if PathBuf::from(SGIT_FILE).exists() {
+            if !PathBuf::from(SGIT_FILE).exists() {
                 let mut file = File::create(SGIT_FILE).unwrap();
-                let sgit = Sgit { repos: vec![] };
+
+                // try: to load from .git/config
+                let repos: Vec<String> = try_load_from_path();
+                let sgit = Sgit { repos };
+
                 file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
-                ;
             } else {
                 error!("{}", format!("{} is exists, will not create", SGIT_FILE));
             }
@@ -82,6 +87,25 @@ fn main() {
     }
 }
 
+fn try_load_from_path() -> Vec<String> {
+    let mut results: Vec<String> = vec![];
+    let walker = WalkDir::new(".").max_depth(1).into_iter();
+    for entry in walker {
+        let entry = entry.unwrap();
+        let git_config_file = entry.path().join(".git").join("config");
+        if git_config_file.exists() {
+            let conf = Ini::load_from_file(git_config_file).unwrap();
+            let section = conf.section(Some("remote \"origin\"")).unwrap();
+            let remote = section.get("url").unwrap();
+            results.push(remote.to_string())
+        } else {
+            error!("cannot parse .git/config file")
+        }
+    }
+
+    results
+}
+
 fn load_sgit() -> Sgit {
     let maybe_file = File::open(SGIT_FILE);
     if maybe_file.is_err() {
@@ -95,4 +119,15 @@ fn load_sgit() -> Sgit {
     file.read_to_string(&mut str).expect(&*format!("cannot read `{}` file", SGIT_FILE));
     let sgit = Sgit::from_str(str.as_str());
     sgit
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::try_load_from_path;
+
+    #[test]
+    fn load_path() {
+        let paths = try_load_from_path();
+        assert_eq!(1, paths.len());
+    }
 }

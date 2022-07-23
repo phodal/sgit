@@ -24,6 +24,10 @@ exclude = [
 [dependencies]
 # todo: create a clean deps version
 # git2 = "0.14"
+walkdir = "2"
+
+# parse `./git/config` file
+rust-ini = "0.18"
 
 clap = "3.2.14"
 url = "2.2.2"
