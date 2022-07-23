@@ -2,7 +2,6 @@
 extern crate log;
 extern crate pretty_env_logger;
 
-use std::ffi::OsString;
 use std::path::PathBuf;
 
 use clap::{arg, Command};

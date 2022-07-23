@@ -60,9 +60,16 @@ mod tests {
     }
 
     #[test]
-    fn repo_name() {
+    fn repo_name_success() {
         let name = GitWrapper("https://github.com/phodal/batch-git").get_repo_name();
 
         assert_eq!("batch-git", name.unwrap());
+    }
+
+    #[test]
+    fn repo_name_return_empty() {
+        let name = GitWrapper("batch-git").get_repo_name();
+
+        assert!(name.is_none());
     }
 }
