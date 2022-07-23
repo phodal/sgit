@@ -71,15 +71,33 @@ impl<'a> GitWrapper<'a> {
         info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
     }
 
+    pub fn try_clean(&self) {
+        let mut cmd = self.with_path();
+        cmd.arg("stash");
+
+        let output = cmd.output().expect("stash code");
+        info!("{}", String::from_utf8_lossy(&*output.stderr));
+        info!("{}", String::from_utf8_lossy(&*output.stdout).to_string());
+    }
+
     pub fn try_pull(&self) {
-        let mut cmd = self.git();
-        cmd.arg("-C").arg(self.get_repo_name().unwrap());
+        self.try_clean();
+
+        let mut cmd = self.with_path();
         cmd.arg("pull");
+
+        info!("pull from path: {}", self.repo);
 
         let output = cmd.output().expect("pull code");
 
         info!("{}", String::from_utf8_lossy(&*output.stderr));
         info!("{}", String::from_utf8_lossy(&*output.stdout).to_string());
+    }
+
+    fn with_path(&self) -> Command {
+        let mut cmd = self.git();
+        cmd.arg("-C").arg(self.get_repo_name().unwrap());
+        cmd
     }
 }
 
