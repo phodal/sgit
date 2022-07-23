@@ -2,6 +2,22 @@
 name = "sgit"
 version = "0.1.0"
 edition = "2021"
+authors = ["Phodal Huang <h@phodal.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/phodal/sgit"
+documentation = "https://github.com/phodal/sgit"
+homepage = "https://github.com/phodal/sgit"
+description = """
+stupid git in a tool
+"""
+categories = ["text-processing", "command-line-interface", "development-tools"]
+exclude = [
+    "targets/*",
+    ".github/*",
+    ".gitattributes",
+    "sbgit.yaml",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
