@@ -94,10 +94,16 @@ fn try_load_from_path() -> Vec<String> {
         .filter(|entry| git_config_path(entry).exists())
         .map(|entry| {
             let conf = Ini::load_from_file(git_config_path(&entry)).unwrap();
-            let section = conf.section(Some("remote \"origin\"")).unwrap();
-            let remote = section.get("url").unwrap();
-            remote.to_string()
+            match conf.section(Some("remote \"origin\"")) {
+                Some(section) => {
+                    section.get("url").unwrap().to_string()
+                }
+                None => {
+                    "".to_string()
+                }
+            }
         })
+        .filter(|path| !path.is_empty())
         .collect()
 }
 
