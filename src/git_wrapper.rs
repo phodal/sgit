@@ -1,4 +1,6 @@
-use std::process::Command;
+use std::path::PathBuf;
+use std::process::{Command, exit};
+use log::Level::Error;
 use url::{Url};
 
 #[derive(Debug)]
@@ -42,7 +44,23 @@ impl<'a> GitWrapper<'a> {
         }
     }
 
-    pub fn clone(&self) {
+    pub fn try_clone(&self) {
+        let maybe_repo_name = self.get_repo_name();
+        if maybe_repo_name.is_none() {
+            error!("cannot get repo name, try to fetch");
+        }
+
+        let repo_name = maybe_repo_name.unwrap();
+
+        let is_already_exists = PathBuf::from(repo_name).exists();
+        if is_already_exists {
+            error!("target repo is exists, try to catch");
+        } else {
+            self.done_clone()
+        }
+    }
+
+    pub fn done_clone(&self) {
         let mut cmd = self.git();
         cmd.arg("clone")
             .arg(self.repo);
@@ -62,7 +80,7 @@ mod tests {
 
     #[test]
     fn successful_clone() {
-        GitWrapper::new("https://github.com/phodal/batch-git").clone();
+        GitWrapper::new("https://github.com/phodal/batch-git").done_clone();
 
         assert!(Path::new("batch-git").exists());
     }

@@ -46,9 +46,8 @@ fn main() {
             file.read_to_string(&mut str).expect("cannot read file");
             let sgit = Sgit::from_str(str.as_str());
             for repo in &sgit.repos {
-                GitWrapper::new(repo).clone();
-            }
-            ;
+                GitWrapper::new(repo).try_clone();
+            };
         }
         Some(("pull", sub_matches)) => {
             println!(
