@@ -1,5 +1,5 @@
 [package]
-name = "batch_git"
+name = "sgit"
 version = "0.1.0"
 edition = "2021"
 
