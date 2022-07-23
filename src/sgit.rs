@@ -11,6 +11,10 @@ impl Sgit {
         let maybe_sgit: Sgit = serde_yaml::from_str(str).expect("cannot parse str");
         maybe_sgit
     }
+
+    pub fn to_str(&self) -> String {
+        serde_yaml::to_string(&self).unwrap_or_default()
+    }
 }
 
 #[cfg(test)]
