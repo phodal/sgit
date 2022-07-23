@@ -44,7 +44,7 @@ fn main() {
                 let mut file = File::create(SGIT_FILE).unwrap();
 
                 // try: to load from .git/config
-                let repos: Vec<String> = try_load_from_path();
+                let repos: Vec<String> = try_load_config_from_path();
                 let sgit = Sgit { repos };
 
                 file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
@@ -87,7 +87,7 @@ fn main() {
     }
 }
 
-fn try_load_from_path() -> Vec<String> {
+fn try_load_config_from_path() -> Vec<String> {
     let walker = WalkDir::new(".").max_depth(1).into_iter();
     walker
         .filter_map(|e| e.ok())
@@ -128,11 +128,17 @@ fn load_sgit() -> Sgit {
 
 #[cfg(test)]
 mod tests {
-    use crate::try_load_from_path;
+    use crate::{load_sgit, try_load_config_from_path};
 
     #[test]
-    fn load_path() {
-        let paths = try_load_from_path();
+    fn test_load_git_config() {
+        let paths = try_load_config_from_path();
         assert!(paths.len() >= 1);
+    }
+
+    #[test]
+    fn test_load_sgit_config() {
+        let sgit = load_sgit();
+        assert_eq!(sgit.repos.len(), 1);
     }
 }
