@@ -18,8 +18,7 @@ impl<'a> GitWrapper<'a> {
     #[must_use]
     #[inline]
     fn git(&self) -> Command {
-        let mut cmd = Command::new("git");
-        cmd.env("GIT_DIR", &self.repo);
+        let cmd = Command::new("git");
         cmd
     }
 
@@ -54,7 +53,7 @@ impl<'a> GitWrapper<'a> {
 
         let is_already_exists = PathBuf::from(repo_name).exists();
         if is_already_exists {
-            error!("target repo is exists, try to catch");
+            error!("target repo is exists, try to pull it");
             self.try_pull();
         } else {
             self.done_clone()
@@ -74,13 +73,15 @@ impl<'a> GitWrapper<'a> {
 
     pub fn try_pull(&self) {
         let mut cmd = self.git();
-        let workdir = format!("-C {}", self.repo);
-        cmd.arg(workdir);
+        cmd.arg("-C").arg(self.get_repo_name().unwrap());
+        cmd.arg("pull");
+
+        info!("{:?}", cmd);
 
         let output = cmd.output().expect("pull code");
 
         info!("{}", String::from_utf8_lossy(&*output.stderr));
-        info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
+        info!("{}", String::from_utf8_lossy(&*output.stdout).to_string());
     }
 }
 
