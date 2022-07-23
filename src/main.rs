@@ -69,7 +69,7 @@ fn main() {
 }
 
 fn load_sgit() -> Sgit {
-    let maybe_file = File::open("sbgit.yaml");
+    let maybe_file = File::open("sgit.yaml");
     if maybe_file.is_err() {
         error!("cannot find file");
         exit(1);
