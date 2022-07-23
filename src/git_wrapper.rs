@@ -55,6 +55,7 @@ impl<'a> GitWrapper<'a> {
         let is_already_exists = PathBuf::from(repo_name).exists();
         if is_already_exists {
             error!("target repo is exists, try to catch");
+            self.try_pull();
         } else {
             self.done_clone()
         }
@@ -71,7 +72,7 @@ impl<'a> GitWrapper<'a> {
         info!("{:?}", String::from_utf8_lossy(&*output.stdout).to_string());
     }
 
-    pub fn pull(&self) {
+    pub fn try_pull(&self) {
         let mut cmd = self.git();
         let workdir = format!("-C {}", self.repo);
         cmd.arg(workdir);
@@ -103,7 +104,7 @@ mod tests {
         wrapper.done_clone();
 
         // todo: wrapper logger for test
-        wrapper.pull();
+        wrapper.try_pull();
 
         assert!(true);
     }

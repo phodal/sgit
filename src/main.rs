@@ -7,7 +7,6 @@ use std::io::Read;
 use std::process::exit;
 
 use clap::Command;
-use pretty_env_logger::init;
 
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
