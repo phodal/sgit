@@ -37,17 +37,16 @@ async fn main() {
     pretty_env_logger::init();
 
     let matches = cli().get_matches();
-
     match matches.subcommand() {
         Some(("init", _)) => {
-            if !PathBuf::from(SGIT_FILE).exists() {
-                let repos: Vec<String> = GitConfig::try_load_git_config_by_paths();
-
-                let sgit = Sgit { repos, organization: None, token: None };
-                sgit.write_to_file();
-            } else {
+            if PathBuf::from(SGIT_FILE).exists() {
                 error!("{}", format!("{} is exists, will not create", SGIT_FILE));
+                exit(1);
             }
+
+            let repos: Vec<String> = GitConfig::try_load_git_config_by_paths();
+            let sgit = Sgit { repos, organization: None, token: None };
+            sgit.write_to_file();
         }
         Some(("gen", _)) => {
             let sgit = Sgit::from_path();
@@ -57,18 +56,17 @@ async fn main() {
             }
 
             let repos = Sgit::fetch_repos(&sgit).await;
-
             let sgit = Sgit { repos, organization: sgit.organization, token: sgit.token };
             sgit.write_to_file();
         }
         Some(("clone", _)) => {
-            execute_in_threads(Sgit::from_path(), GitWrapper::clone_action);
+            execute_in_threads(Sgit::from_path(), GitWrapper::clone);
         }
         Some(("pull", _)) => {
-            execute_in_threads(Sgit::from_path(), GitWrapper::pull_action);
+            execute_in_threads(Sgit::from_path(), GitWrapper::pull);
         }
         _ => {
-            error!("unsupported command")
+            error!("unsupported command");
         }
     }
 }

@@ -22,11 +22,11 @@ impl<'a> GitWrapper<'a> {
         cmd
     }
 
-    pub fn clone_action(repo: &String) {
+    pub fn clone(repo: &String) {
         GitWrapper::new(&repo).try_clone()
     }
 
-    pub fn pull_action(repo: &String) {
+    pub fn pull(repo: &String) {
         GitWrapper::new(&repo).try_pull()
     }
 
