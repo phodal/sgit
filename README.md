@@ -20,9 +20,9 @@ generate repos by orgs:
 
 ```yaml
 ---
-repos:
 organization: xxx
 token: xxx
+repos: []
 ```
 
 License
