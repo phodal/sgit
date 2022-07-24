@@ -29,6 +29,10 @@ walkdir = "2"
 # parse `./git/config` file
 rust-ini = "0.18"
 
+# GitHub api
+tokio = { version = "1.20.0", features = ["full"] }
+octocrab = "0.16"
+
 clap = "3.2.14"
 url = "2.2.2"
 

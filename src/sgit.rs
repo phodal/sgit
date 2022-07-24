@@ -5,7 +5,9 @@ use serde::Serialize;
 pub struct Sgit {
     pub repos: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub organization: Option<String>
+    pub organization: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub token: Option<String>
 }
 
 impl Sgit {

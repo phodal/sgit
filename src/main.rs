@@ -10,6 +10,8 @@ use std::thread;
 
 use clap::Command;
 use ini::Ini;
+use octocrab::Octocrab;
+use octocrab::params::repos::{Sort, Type};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::git_wrapper::GitWrapper;
@@ -30,10 +32,12 @@ fn cli() -> Command<'static> {
         .subcommand(Command::new("init").about("init sgit config"))
         .subcommand(Command::new("clone").about("Clones repos"))
         .subcommand(Command::new("push").about("pushes things"))
+        .subcommand(Command::new("gen").about("generate sgit by org"))
         .subcommand(Command::new("add").about("add a repos !! not implement"))
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     pretty_env_logger::init();
 
     let matches = cli().get_matches();
@@ -43,14 +47,39 @@ fn main() {
             if !PathBuf::from(SGIT_FILE).exists() {
                 let mut file = File::create(SGIT_FILE).unwrap();
 
-                // try: to load from .git/config
-                let repos: Vec<String> = try_load_config_from_path();
-                let sgit = Sgit { repos, organization: None };
+                let repos: Vec<String> = try_load_git_config_by_paths();
+                let sgit = Sgit { repos, organization: None, token: None };
 
-                file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
+                write_sgit_to_file(&mut file, sgit)
             } else {
                 error!("{}", format!("{} is exists, will not create", SGIT_FILE));
             }
+        }
+        Some(("gen", _)) => {
+            let sgit = load_sgit();
+            if sgit.token.is_none() || sgit.organization.is_none() {
+                error!("{}", "cannot found token or organization");
+                exit(1);
+            }
+
+            let octocrab = Octocrab::builder().personal_token(sgit.token.clone().unwrap()).build().unwrap();
+            let page = octocrab
+                .orgs(sgit.organization.clone().unwrap())
+                .list_repos()
+                .repo_type(Type::Private)
+                .per_page(100)
+                .sort(Sort::Pushed)
+                .send()
+                .await
+                .unwrap();
+
+            let repos: Vec<String> = page.into_iter()
+                .map(|repo| repo.url.to_string())
+                .collect();
+
+            let mut file = File::create(SGIT_FILE).unwrap();
+            let sgit = Sgit { repos, organization: sgit.organization, token: sgit.token };
+            write_sgit_to_file(&mut file, sgit)
         }
         Some(("clone", _)) => {
             let sgit = load_sgit();
@@ -87,7 +116,11 @@ fn main() {
     }
 }
 
-fn try_load_config_from_path() -> Vec<String> {
+fn write_sgit_to_file(file: &mut File, sgit: Sgit) {
+    file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
+}
+
+fn try_load_git_config_by_paths() -> Vec<String> {
     let walker = WalkDir::new(".").max_depth(1).into_iter();
     walker
         .filter_map(|e| e.ok())
@@ -128,11 +161,11 @@ fn load_sgit() -> Sgit {
 
 #[cfg(test)]
 mod tests {
-    use crate::{load_sgit, try_load_config_from_path};
+    use crate::{load_sgit, try_load_git_config_by_paths};
 
     #[test]
     fn test_load_git_config() {
-        let paths = try_load_config_from_path();
+        let paths = try_load_git_config_by_paths();
         assert!(paths.len() >= 1);
     }
 
