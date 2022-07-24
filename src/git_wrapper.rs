@@ -27,7 +27,7 @@ impl<'a> GitWrapper<'a> {
     }
 
     pub fn pull_action(repo: &String) {
-        GitWrapper::new(&repo).try_clone()
+        GitWrapper::new(&repo).try_pull()
     }
 
     pub fn get_repo_name(&self) -> Option<String> {
