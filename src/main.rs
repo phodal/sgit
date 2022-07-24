@@ -12,6 +12,7 @@ use clap::Command;
 use ini::Ini;
 use octocrab::Octocrab;
 use octocrab::params::repos::{Sort, Type};
+use url::Url;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::git_wrapper::GitWrapper;
@@ -62,20 +63,7 @@ async fn main() {
                 exit(1);
             }
 
-            let octocrab = Octocrab::builder().personal_token(sgit.token.clone().unwrap()).build().unwrap();
-            let page = octocrab
-                .orgs(sgit.organization.clone().unwrap())
-                .list_repos()
-                .repo_type(Type::Private)
-                .per_page(100)
-                .sort(Sort::Pushed)
-                .send()
-                .await
-                .unwrap();
-
-            let repos: Vec<String> = page.into_iter()
-                .map(|repo| repo.url.to_string())
-                .collect();
+            let repos = fetch_repos(&sgit).await;
 
             let mut file = File::create(SGIT_FILE).unwrap();
             let sgit = Sgit { repos, organization: sgit.organization, token: sgit.token };
@@ -113,6 +101,32 @@ async fn main() {
         _ => {
             error!("unsupported command")
         }
+    }
+}
+
+async fn fetch_repos(sgit: &Sgit) -> Vec<String> {
+    let octocrab = Octocrab::builder().personal_token(sgit.token.clone().unwrap()).build().unwrap();
+    let page = octocrab
+        .orgs(sgit.organization.clone().unwrap())
+        .list_repos()
+        .repo_type(Type::Private)
+        .per_page(100)
+        .sort(Sort::Pushed)
+        .send()
+        .await
+        .unwrap();
+
+    page.into_iter()
+        .map(|repo| repo.clone_url)
+        .filter_map(|repo| is_clone_url_correct(repo))
+        .collect()
+}
+
+fn is_clone_url_correct(repo: Option<Url>) -> Option<String> {
+    if repo.is_some() {
+        return Some(repo.unwrap().to_string())
+    } else {
+        None
     }
 }
 
