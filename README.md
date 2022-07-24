@@ -14,7 +14,16 @@ repos:
 
 Todo in future:
 
-- [ ] get all repository from GitHub
+- [x] get all repository from GitHub
+
+generate repos by orgs:
+
+```yaml
+---
+repos:
+organization: xxx
+token: xxx
+```
 
 License
 ---
