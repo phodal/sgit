@@ -45,7 +45,7 @@ fn main() {
 
                 // try: to load from .git/config
                 let repos: Vec<String> = try_load_config_from_path();
-                let sgit = Sgit { repos };
+                let sgit = Sgit { repos, organization: None };
 
                 file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
             } else {

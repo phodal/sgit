@@ -12,6 +12,10 @@ repos:
   - https://github.com/phodal/sgit.git
 ```
 
+Todo in future:
+
+- [ ] get all repository from GitHub
+
 License
 ---
 

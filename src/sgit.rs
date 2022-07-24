@@ -3,7 +3,9 @@ use serde::Serialize;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Sgit {
-    pub repos: Vec<String>
+    pub repos: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization: Option<String>
 }
 
 impl Sgit {
