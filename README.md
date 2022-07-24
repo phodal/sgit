@@ -1,8 +1,8 @@
 # stupid-git
 
 [![crates.io](https://img.shields.io/crates/v/sgit.svg)](https://crates.io/crates/sgit)
-[![docs.rs](https://docs.rs/sgit/badge.svg)](https://docs.rs/sgit/)
 [![license](https://img.shields.io/crates/l/sgit)](https://github.com/inherd/sgit/blob/master/LICENSE)
+[![Sgit Build](https://github.com/phodal/sgit/actions/workflows/build.yml/badge.svg)](https://github.com/phodal/sgit/actions/workflows/build.yml)
 
 > A simple cli to clone projects and update all projects.
 
