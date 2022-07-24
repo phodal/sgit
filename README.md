@@ -1,5 +1,9 @@
 # stupid-git
 
+[![crates.io](https://img.shields.io/crates/v/sgit.svg)](https://crates.io/crates/sgit)
+[![docs.rs](https://docs.rs/sgit/badge.svg)](https://docs.rs/sgit/)
+[![license](https://img.shields.io/crates/l/sgit)](https://github.com/inherd/sgit/blob/master/LICENSE)
+
 > A simple cli to clone projects and update all projects.
 
 - [x] get all repository from GitHub
