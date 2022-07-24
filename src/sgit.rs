@@ -29,7 +29,7 @@ impl Sgit {
 }
 
 impl Sgit {
-    pub fn load_sgit() -> Sgit {
+    pub fn from_path() -> Sgit {
         let maybe_file = File::open(SGIT_FILE);
         if maybe_file.is_err() {
             error!("{}", format!("cannot find `{}` file", SGIT_FILE));
@@ -44,8 +44,9 @@ impl Sgit {
         sgit
     }
 
-    pub fn write_sgit_to_file(file: &mut File, sgit: Sgit) {
-        file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
+    pub fn write_to_file(&self) {
+        let mut file = File::create(SGIT_FILE).unwrap();
+        file.write_all(self.to_str().as_ref()).expect("init with write file failure")
     }
 
     pub fn filter_correct_url(repo: Option<Url>) -> Option<String> {

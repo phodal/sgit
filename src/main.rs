@@ -2,7 +2,6 @@
 extern crate log;
 extern crate pretty_env_logger;
 
-use std::fs::File;
 use std::path::PathBuf;
 use std::process::exit;
 use std::thread;
@@ -42,18 +41,16 @@ async fn main() {
     match matches.subcommand() {
         Some(("init", _)) => {
             if !PathBuf::from(SGIT_FILE).exists() {
-                let mut file = File::create(SGIT_FILE).unwrap();
-
                 let repos: Vec<String> = GitConfig::try_load_git_config_by_paths();
-                let sgit = Sgit { repos, organization: None, token: None };
 
-                Sgit::write_sgit_to_file(&mut file, sgit)
+                let sgit = Sgit { repos, organization: None, token: None };
+                sgit.write_to_file();
             } else {
                 error!("{}", format!("{} is exists, will not create", SGIT_FILE));
             }
         }
         Some(("gen", _)) => {
-            let sgit = Sgit::load_sgit();
+            let sgit = Sgit::from_path();
             if sgit.token.is_none() || sgit.organization.is_none() {
                 error!("{}", "cannot found token or organization");
                 exit(1);
@@ -61,17 +58,14 @@ async fn main() {
 
             let repos = Sgit::fetch_repos(&sgit).await;
 
-            let mut file = File::create(SGIT_FILE).unwrap();
             let sgit = Sgit { repos, organization: sgit.organization, token: sgit.token };
-            Sgit::write_sgit_to_file(&mut file, sgit)
+            sgit.write_to_file();
         }
         Some(("clone", _)) => {
-            let sgit = Sgit::load_sgit();
-            execute_action_in_threads(sgit, clone_action);
+            execute_in_threads(Sgit::from_path(), GitWrapper::clone_action);
         }
         Some(("pull", _)) => {
-            let sgit = Sgit::load_sgit();
-            execute_action_in_threads(sgit, pull_action);
+            execute_in_threads(Sgit::from_path(), GitWrapper::pull_action);
         }
         _ => {
             error!("unsupported command")
@@ -79,15 +73,7 @@ async fn main() {
     }
 }
 
-fn clone_action(repo: &String) {
-    GitWrapper::new(&repo).try_clone()
-}
-
-fn pull_action(repo: &String) {
-    GitWrapper::new(&repo).try_clone()
-}
-
-fn execute_action_in_threads(sgit: Sgit, action: fn(&String)) {
+fn execute_in_threads(sgit: Sgit, action: fn(&String)) {
     let threads: Vec<_> = sgit.repos.into_iter()
         .map(|repo| {
             thread::spawn(move || {
@@ -114,7 +100,7 @@ mod tests {
 
     #[test]
     fn test_load_sgit_config() {
-        let sgit = Sgit::load_sgit();
+        let sgit = Sgit::from_path();
         assert_eq!(sgit.repos.len(), 1);
     }
 }

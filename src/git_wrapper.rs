@@ -22,6 +22,14 @@ impl<'a> GitWrapper<'a> {
         cmd
     }
 
+    pub fn clone_action(repo: &String) {
+        GitWrapper::new(&repo).try_clone()
+    }
+
+    pub fn pull_action(repo: &String) {
+        GitWrapper::new(&repo).try_clone()
+    }
+
     pub fn get_repo_name(&self) -> Option<String> {
         let url = Url::parse(self.repo);
         if url.is_err() {
