@@ -37,7 +37,12 @@ impl<'a> GitWrapper<'a> {
         match &maybe_paths {
             None => { None }
             Some(paths) => {
-                let last = paths.last().unwrap_or(&"").to_string();
+                let mut last = paths.last().unwrap_or(&"").to_string();
+                let maybe_suffix = last.strip_suffix(".git");
+                if maybe_suffix.is_some() {
+                    last = maybe_suffix.unwrap().to_string();
+                }
+
                 Some(last)
             }
         }
@@ -125,6 +130,12 @@ mod tests {
     #[test]
     fn repo_name_success() {
         let name = GitWrapper::new("https://github.com/phodal/batch-git").get_repo_name();
+        assert_eq!("batch-git", name.unwrap());
+    }
+
+    #[test]
+    fn suffix_name_success() {
+        let name = GitWrapper::new("https://github.com/phodal/batch-git.git").get_repo_name();
         assert_eq!("batch-git", name.unwrap());
     }
 
