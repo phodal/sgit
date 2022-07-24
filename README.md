@@ -1,6 +1,15 @@
 # stupid-git
 
-A simple cli to clone projects and update all projects.
+> A simple cli to clone projects and update all projects.
+
+- [x] get all repository from GitHub
+- [ ] clone all
+- [ ] pull all
+    - [x] with `git stash`
+
+## Usage
+
+### clone
 
 1. create `sgit.yaml` file
 2. run `sgit clone` or `sgit pull`
@@ -12,9 +21,7 @@ repos:
   - https://github.com/phodal/sgit.git
 ```
 
-Todo in future:
-
-- [x] get all repository from GitHub
+### auto gen repo
 
 generate repos by orgs:
 
@@ -23,6 +30,27 @@ generate repos by orgs:
 organization: xxx
 token: xxx
 repos: []
+```
+
+### others
+
+```
+sgit
+A multiple repo's git cli
+
+USAGE:
+    sgit <SUBCOMMAND>
+
+OPTIONS:
+    -h, --help    Print help information
+
+SUBCOMMANDS:
+    add      add a repos !! not implement
+    clone    Clones repos
+    gen      generate sgit by org
+    help     Print this message or the help of the given subcommand(s)
+    init     init sgit config
+    push     pushes things
 ```
 
 License
