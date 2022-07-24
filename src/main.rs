@@ -8,7 +8,6 @@ use std::process::exit;
 use std::thread;
 
 use clap::Command;
-use url::Url;
 
 use crate::git_config::GitConfig;
 use crate::git_wrapper::GitWrapper;
@@ -68,32 +67,11 @@ async fn main() {
         }
         Some(("clone", _)) => {
             let sgit = Sgit::load_sgit();
-
-            let threads: Vec<_> = sgit.repos.into_iter()
-                .map(|repo| {
-                    thread::spawn(move || {
-                        GitWrapper::new(&repo).try_clone();
-                    })
-                })
-                .collect();
-
-            for handle in threads {
-                handle.join().unwrap()
-            }
+            execute_action_in_threads(sgit, clone_action);
         }
         Some(("pull", _)) => {
             let sgit = Sgit::load_sgit();
-            let threads: Vec<_> = sgit.repos.into_iter()
-                .map(|repo| {
-                    thread::spawn(move || {
-                        GitWrapper::new(&repo).try_pull();
-                    })
-                })
-                .collect();
-
-            for handle in threads {
-                handle.join().unwrap()
-            }
+            execute_action_in_threads(sgit, pull_action);
         }
         _ => {
             error!("unsupported command")
@@ -101,11 +79,25 @@ async fn main() {
     }
 }
 
-fn filter_correct_url(repo: Option<Url>) -> Option<String> {
-    if repo.is_some() {
-        return Some(repo.unwrap().to_string())
-    } else {
-        None
+fn clone_action(repo: &String) {
+    GitWrapper::new(&repo).try_clone()
+}
+
+fn pull_action(repo: &String) {
+    GitWrapper::new(&repo).try_clone()
+}
+
+fn execute_action_in_threads(sgit: Sgit, action: fn(&String)) {
+    let threads: Vec<_> = sgit.repos.into_iter()
+        .map(|repo| {
+            thread::spawn(move || {
+                action(&repo);
+            })
+        })
+        .collect();
+
+    for handle in threads {
+        handle.join().unwrap()
     }
 }
 

@@ -5,6 +5,7 @@ use std::process::exit;
 use std::io::{Read, Write};
 use octocrab::Octocrab;
 use octocrab::params::repos::{Sort, Type};
+use url::Url;
 use crate::SGIT_FILE;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -13,7 +14,7 @@ pub struct Sgit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub token: Option<String>
+    pub token: Option<String>,
 }
 
 impl Sgit {
@@ -47,6 +48,14 @@ impl Sgit {
         file.write_all(sgit.to_str().as_ref()).expect("init with write file failure")
     }
 
+    pub fn filter_correct_url(repo: Option<Url>) -> Option<String> {
+        if repo.is_some() {
+            return Some(repo.unwrap().to_string());
+        } else {
+            None
+        }
+    }
+
     pub async fn fetch_repos(sgit: &Sgit) -> Vec<String> {
         let octocrab = Octocrab::builder().personal_token(sgit.token.clone().unwrap()).build().unwrap();
         let page = octocrab
@@ -61,7 +70,7 @@ impl Sgit {
 
         page.into_iter()
             .map(|repo| repo.clone_url)
-            .filter_map(|repo| crate::filter_correct_url(repo))
+            .filter_map(|repo| Sgit::filter_correct_url(repo))
             .collect()
     }
 }
