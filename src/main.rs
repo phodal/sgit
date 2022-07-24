@@ -8,15 +8,15 @@ use std::process::exit;
 use std::thread;
 
 use clap::Command;
-use ini::Ini;
 use url::Url;
-use walkdir::{DirEntry, WalkDir};
 
+use crate::git_config::GitConfig;
 use crate::git_wrapper::GitWrapper;
 use crate::sgit::Sgit;
 
 mod sgit;
 mod git_wrapper;
+mod git_config;
 
 static SGIT_FILE: &str = "sgit.yaml";
 
@@ -45,7 +45,7 @@ async fn main() {
             if !PathBuf::from(SGIT_FILE).exists() {
                 let mut file = File::create(SGIT_FILE).unwrap();
 
-                let repos: Vec<String> = try_load_git_config_by_paths();
+                let repos: Vec<String> = GitConfig::try_load_git_config_by_paths();
                 let sgit = Sgit { repos, organization: None, token: None };
 
                 Sgit::write_sgit_to_file(&mut file, sgit)
@@ -101,7 +101,7 @@ async fn main() {
     }
 }
 
-fn is_clone_url_correct(repo: Option<Url>) -> Option<String> {
+fn filter_correct_url(repo: Option<Url>) -> Option<String> {
     if repo.is_some() {
         return Some(repo.unwrap().to_string())
     } else {
@@ -109,37 +109,14 @@ fn is_clone_url_correct(repo: Option<Url>) -> Option<String> {
     }
 }
 
-fn try_load_git_config_by_paths() -> Vec<String> {
-    let walker = WalkDir::new(".").max_depth(1).into_iter();
-    walker
-        .filter_map(|e| e.ok())
-        .filter(|entry| git_config_path(entry).exists())
-        .map(|entry| {
-            let conf = Ini::load_from_file(git_config_path(&entry)).unwrap();
-            match conf.section(Some("remote \"origin\"")) {
-                Some(section) => {
-                    section.get("url").unwrap().to_string()
-                }
-                None => {
-                    "".to_string()
-                }
-            }
-        })
-        .filter(|path| !path.is_empty())
-        .collect()
-}
-
-fn git_config_path(entry: &DirEntry) -> PathBuf {
-    entry.path().join(".git").join("config")
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{Sgit, try_load_git_config_by_paths};
+    use crate::git_config::GitConfig;
+    use crate::Sgit;
 
     #[test]
     fn test_load_git_config() {
-        let paths = try_load_git_config_by_paths();
+        let paths = GitConfig::try_load_git_config_by_paths();
         assert!(paths.len() >= 1);
     }
 

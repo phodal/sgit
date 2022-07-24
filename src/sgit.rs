@@ -61,7 +61,7 @@ impl Sgit {
 
         page.into_iter()
             .map(|repo| repo.clone_url)
-            .filter_map(|repo| crate::is_clone_url_correct(repo))
+            .filter_map(|repo| crate::filter_correct_url(repo))
             .collect()
     }
 }
