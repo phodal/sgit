@@ -81,7 +81,7 @@ fn execute_in_threads(sgit: Sgit, action: fn(&String)) {
         .collect();
 
     for handle in threads {
-        handle.join().unwrap()
+        handle.join().expect("join in thread crash")
     }
 }
 

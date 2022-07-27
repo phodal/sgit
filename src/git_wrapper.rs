@@ -78,6 +78,8 @@ impl<'a> GitWrapper<'a> {
         cmd.arg("clone")
             .arg(self.repo);
 
+        info!("run `git clone` from path: {}", self.repo);
+
         let output = cmd.output().expect("git command failed to start");
 
         info!("{}", String::from_utf8_lossy(&*output.stderr));
@@ -87,6 +89,8 @@ impl<'a> GitWrapper<'a> {
     pub fn try_clean(&self) {
         let mut cmd = self.with_path();
         cmd.arg("stash");
+
+        info!("run `git stash` from path: {}", self.repo);
 
         let output = cmd.output().expect("stash code");
         info!("{}", String::from_utf8_lossy(&*output.stderr));
@@ -99,7 +103,7 @@ impl<'a> GitWrapper<'a> {
         let mut cmd = self.with_path();
         cmd.arg("pull");
 
-        info!("pull from path: {}", self.repo);
+        info!("run `git pull` from path: {}", self.repo);
 
         let output = cmd.output().expect("pull code");
 
