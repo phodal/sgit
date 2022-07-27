@@ -72,6 +72,8 @@ async fn main() {
 }
 
 fn execute_in_threads(sgit: Sgit, action: fn(&String)) {
+    // todo: need to limit for git.gc
+    // https://stackoverflow.com/questions/15375454/why-does-git-fail-on-push-fetch-with-too-many-open-files
     let threads: Vec<_> = sgit.repos.into_iter()
         .map(|repo| {
             thread::spawn(move || {
