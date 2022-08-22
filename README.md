@@ -25,7 +25,13 @@ repos:
   - https://github.com/phodal/sgit.git
 ```
 
-### auto gen repo
+### auto gen for orgs
+
+auto gen config
+
+```
+sgit gen
+```
 
 generate repos by orgs:
 
@@ -35,6 +41,8 @@ organization: xxx
 token: xxx
 repos: []
 ```
+
+for private projects, you need to config `token`
 
 ### others
 
