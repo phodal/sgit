@@ -7,13 +7,11 @@
 > A simple cli to clone projects and update all projects.
 
 - [x] get all repository from GitHub
-- [ ] clone all
-- [ ] pull all
+- [x] clone all
+- [x] pull all
     - [x] with `git stash`
 
 ## Usage
-
-### clone
 
 1. create `sgit.yaml` file
 2. run `sgit clone` or `sgit pull`
@@ -25,15 +23,9 @@ repos:
   - https://github.com/phodal/sgit.git
 ```
 
-### auto gen for orgs
+### auto gen repos for orgs
 
-auto gen config
-
-```
-sgit gen
-```
-
-generate repos by orgs:
+1. config for orgs with `sgit.yaml`:
 
 ```yaml
 ---
@@ -42,7 +34,15 @@ token: xxx
 repos: []
 ```
 
-for private projects, you need to config `token`
+for private projects, you need to config `token` from: [https://github.com/settings/tokens](https://github.com/settings/tokens)
+
+2. run `sgit gen` for fetch all repos info
+
+```
+sgit gen
+```
+
+3. run `sgit clone` or `sgit pull`
 
 ### others
 
